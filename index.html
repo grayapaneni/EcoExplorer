@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explore National Parks</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body {
             background-color: #f4f4f4;
@@ -29,10 +27,8 @@
             margin-top: 50px;
             font-size: 2em;
         }
-        .map-container {
-            width: 100%;
-            height: 400px;
-            margin-top: 30px;
+        .card {
+            margin: 20px;
         }
     </style>
 </head>
@@ -78,12 +74,47 @@
         <p>Weather: {{ weather.weather[0].description }}</p>
     </div>
 
-    <!-- Park Boundary Map Section -->
+    <!-- Search Form -->
     <div class="section-title">
-        <h2>Park Boundary Map</h2>
+        <h2>Search Parks</h2>
     </div>
     <div class="container">
-        <div id="map" class="map-container"></div>
+        <form method="POST">
+            <div class="form-group">
+                <label for="searchType">Search By:</label>
+                <select class="form-control" id="searchType" name="search_type">
+                    <option value="park">Park</option>
+                    <option value="state">State</option>
+                    <option value="activity">Activity</option>
+                </select>
+            </div>
+            <div class="form-group mt-2">
+                <label for="searchValue">Search Term:</label>
+                <input type="text" class="form-control" id="searchValue" name="search_value" placeholder="Enter search term">
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Search</button>
+        </form>
+    </div>
+
+    <!-- Park Exploration Section -->
+    <div class="section-title">
+        <h2>National Parks</h2>
+    </div>
+    <div class="container">
+        <div class="row">
+            {% for park in parks %}
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ park.images[0].url }}" class="card-img-top" alt="{{ park.fullName }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ park.fullName }}</h5>
+                        <p class="card-text">{{ park.description }}</p>
+                        <button class="btn btn-primary" onclick="window.location.href='{{ park.url }}'">Learn More</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
 
@@ -102,32 +133,4 @@
         <h1>Contact Us</h1>
         <p>This is the contact page. Feel free to reach out if you have any questions or feedback about the project.</p>
         <p>You can email us at: <strong>contact@exploreparks.com</strong></p>
-        <p>We are always happy to hear from fellow park enthusiasts!</p>
-    </header>
-</section>
-
-<!-- Footer -->
-<footer>
-    <p>&copy; 2025 Explore Parks | All Rights Reserved</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-    // Park boundary data from Flask backend
-    const parkData = {{ park_data | tojson }};
-    const latlngs = parkData.data[0].boundaries[0].polygon[0].coordinates[0].map(coord => [coord[1], coord[0]]); // Coordinates are in [lat, long] format
-
-    // Initialize the map
-    const map = L.map('map').setView([latlngs[0][0], latlngs[0][1]], 13);
-
-    // Set up the map tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Add polygon for park boundary
-    L.polygon(latlngs, { color: 'blue', weight: 2, fillOpacity: 0.3 }).addTo(map);
-</script>
-</body>
-</html>
+        <p>We are always happy to hear from fellow park enthusia
