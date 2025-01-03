@@ -31,13 +31,6 @@
         .card {
             margin: 20px;
         }
-        .hero-card {
-            border: none;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
         footer {
             background-color: #2C3E50;
             color: white;
@@ -77,58 +70,28 @@
     <p>Your guide to the best parks, trails, and landscapes across the country</p>
 </header>
 
-<!-- About Section -->
+<!-- Weather Section -->
 <div class="section-title">
-    <h2>About National Parks</h2>
+    <h2>Current Weather</h2>
 </div>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="hero-card">
-                <h3>Yosemite National Park</h3>
-                <p>Yosemite National Park is located in California's Sierra Nevada mountains. It's known for its stunning waterfalls, giant sequoias, and granite cliffs.</p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="hero-card">
-                <h3>Yellowstone National Park</h3>
-                <p>Yellowstone is a geothermal wonderland, famous for its geysers, hot springs, and abundant wildlife.</p>
-            </div>
-        </div>
-    </div>
+<div class="container" id="weather-section">
+    <!-- Weather data will be injected here by JavaScript -->
 </div>
 
 <!-- Park Exploration Section -->
 <div class="section-title">
-    <h2>Explore Parks</h2>
+    <h2>National Parks</h2>
 </div>
-<div class="container">
-    <div class="row">
-        <!-- Card for Park Details -->
-        <div class="col-md-4">
-            <div class="card">
-                <img src="https://images.unsplash.com/photo-1514583963320-f5835c2c730b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8eW9zZW1pdGUlMjBuYXRpb25hbCUyMHBhcmt8ZW58MHx8MHx8fDA%3D" class="card-img-top" alt="Yosemite Park Image">
-                <div class="card-body">
-                    <h5 class="card-title">Yosemite</h5>
-                    <p class="card-text">Explore the majestic waterfalls and giant sequoias of Yosemite National Park.</p>
-                    <button class="btn btn-primary" onclick="window.location.href='https://www.nps.gov/yose/index.htm'">Learn More</button>
-                </div>
-            </div>
-        </div>
+<div class="container" id="parks-section">
+    <!-- Parks data will be injected here by JavaScript -->
+</div>
 
-        <div class="col-md-4">
-            <div class="card">
-                <img src="https://images.unsplash.com/photo-1630417923898-c395b6b90c9b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHllbGxvd3N0b25lJTIwbmF0aW9uYWwlMjBwYXJrfGVufDB8fDB8fHww" class="card-img-top" alt="Yellowstone">
-                <div class="card-body">
-                    <h5 class="card-title">Yellowstone</h5>
-                    <p class="card-text">Discover the beauty and wildlife of Yellowstone National Park.</p>
-                    <button class="btn btn-primary" onclick="window.location.href='https://www.nps.gov/yell/index.htm'">Learn More</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add more park cards here as needed -->
-    </div>
+<!-- Activities Section -->
+<div class="section-title">
+    <h2>Available Activities</h2>
+</div>
+<div class="container" id="activities-section">
+    <!-- Activities data will be injected here by JavaScript -->
 </div>
 
 <!-- Footer -->
@@ -137,5 +100,55 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Fetch and display weather data
+fetch('http://api.openweathermap.org/data/2.5/weather?q=USA&appid=2b6a8c3db08c75bce9c02ea450c736ef')
+    .then(response => response.json())
+    .then(data => {
+        const weatherSection = document.getElementById('weather-section');
+        weatherSection.innerHTML = `
+            <p>Location: ${data.name}</p>
+            <p>Temperature: ${data.main.temp}&#176;K</p>
+            <p>Weather: ${data.weather[0].description}</p>
+        `;
+    });
+
+// Fetch and display park data
+fetch('https://developer.nps.gov/api/v1/parks?limit=5&api_key=Rv3BXI1nOmCuGXt1AXQgHzcjhPlnMAwZhMq1AErP')
+    .then(response => response.json())
+    .then(data => {
+        const parksSection = document.getElementById('parks-section');
+        let parksHTML = '';
+        data.data.forEach(park => {
+            parksHTML += `
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="${park.images[0].url}" class="card-img-top" alt="${park.fullName}">
+                        <div class="card-body">
+                            <h5 class="card-title">${park.fullName}</h5>
+                            <p class="card-text">${park.description}</p>
+                            <button class="btn btn-primary" onclick="window.location.href='${park.url}'">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        parksSection.innerHTML = `<div class="row">${parksHTML}</div>`;
+    });
+
+// Fetch and display activities data
+fetch('https://developer.nps.gov/api/v1/activities?api_key=Rv3BXI1nOmCuGXt1AXQgHzcjhPlnMAwZhMq1AErP')
+    .then(response => response.json())
+    .then(data => {
+        const activitiesSection = document.getElementById('activities-section');
+        let activitiesHTML = '';
+        data.data.forEach(activity => {
+            activitiesHTML += `<li>${activity.name}</li>`;
+        });
+        activitiesSection.innerHTML = `<ul>${activitiesHTML}</ul>`;
+    });
+</script>
+
 </body>
 </html>
